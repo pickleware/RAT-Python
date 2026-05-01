@@ -75,10 +75,7 @@ def run(plat):
     # platform specific
     is_admin = False
 
-    if plat == 'win':
-        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
-
-    elif plat in ['nix', 'mac']:
+    if plat in ['nix', 'mac']:
         is_admin = os.getuid() == 0
 
     admin_access = 'Yes' if is_admin else 'No'
