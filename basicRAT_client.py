@@ -27,7 +27,7 @@ elif sys.platform.startswith('linux'):
 elif sys.platform.startswith('darwin'):
     PLAT = 'mac'
 else:
-    print 'This platform is not supported.'
+    print('This platform is not supported.')
     sys.exit(1)
 
 
